@@ -1,6 +1,5 @@
 import { relations } from "drizzle-orm";
 import { integer, jsonb, pgTable,serial, text, timestamp, unique, varchar } from "drizzle-orm/pg-core";
-import { resume } from "react-dom/server";
 
 export const users = pgTable('users',{
     id:serial("id").primaryKey(),
