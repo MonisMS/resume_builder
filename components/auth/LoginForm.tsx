@@ -13,10 +13,12 @@ import { Button } from "../ui/button";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 
 const LoginForm = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -76,18 +78,40 @@ const LoginForm = () => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              placeholder="••••••••"
-              onChange={handleChange}
-              value={formData.password}
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="••••••••"
+                onChange={handleChange}
+                value={formData.password}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Signing in...." : "Sign In"}
           </Button>
+
+<div className="text-center text-sm">
+            <span className="text-muted-foreground">Don't have an account? </span>
+            <a href="/register" className="text-primary hover:underline">
+              Sign up
+            </a>
+          </div>
+
         </form>
       </CardContent>
     </Card>

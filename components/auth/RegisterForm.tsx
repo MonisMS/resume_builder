@@ -7,9 +7,13 @@ import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { Eye, EyeOff } from "lucide-react"
+import { signIn } from "next-auth/react"
 
 export const RegisterForm = () =>{
 const [loading,setLoading] = useState(false)
+const [showPassword, setShowPassword] = useState(false)
+const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 const [formData,setFormData] = useState({
     name:"",
     email:"",
@@ -60,8 +64,23 @@ const handleChange = (e:React.ChangeEvent<HTMLInputElement>) =>{
             toast.error(data.error || 'Registration Failed')
             return 
           }
-          toast.success('Registration successful! Please sign in.')
-      router.push('/login')
+          
+          toast.success('Registration successful! Signing you in...')
+          
+          // Automatically sign in after successful registration
+          const signInResult = await signIn('credentials', {
+            email: formData.email,
+            password: formData.password,
+            redirect: false,
+          })
+          
+          if (signInResult?.error) {
+            toast.error('Registration successful, but sign in failed. Please try logging in.')
+            router.push('/login')
+          } else {
+            router.push('/dashboard')
+            router.refresh()
+          }
       } catch (error) {
         toast.error('Something went wrong. Please try again.')
     } finally {
@@ -109,28 +128,54 @@ const handleChange = (e:React.ChangeEvent<HTMLInputElement>) =>{
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="••••••••"
-              required
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              placeholder="••••••••"
-              required
-            />
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="••••••••"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? 'Creating account...' : 'Create account'}
